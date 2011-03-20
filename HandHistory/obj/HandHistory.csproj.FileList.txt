@@ -1,0 +1,10 @@
+bin\Debug\HandHistory.dll
+bin\Debug\HandHistory.pdb
+obj\Debug\ResolveAssemblyReference.cache
+obj\Debug\HandHistory.dll
+obj\Debug\HandHistory.pdb
+bin\Release\HandHistory.dll
+bin\Release\HandHistory.pdb
+obj\Release\ResolveAssemblyReference.cache
+obj\Release\HandHistory.dll
+obj\Release\HandHistory.pdb

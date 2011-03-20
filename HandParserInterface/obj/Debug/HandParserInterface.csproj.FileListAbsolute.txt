@@ -1,0 +1,8 @@
+C:\hoki\hand2xml\HandParserInterface\bin\Debug\HandParserInterface.dll
+C:\hoki\hand2xml\HandParserInterface\bin\Debug\HandParserInterface.pdb
+C:\hoki\hand2xml\HandParserInterface\bin\Debug\HandHistory.dll
+C:\hoki\hand2xml\HandParserInterface\bin\Debug\PluginInterface.dll
+C:\hoki\hand2xml\HandParserInterface\bin\Debug\HandHistory.pdb
+C:\hoki\hand2xml\HandParserInterface\obj\Debug\ResolveAssemblyReference.cache
+C:\hoki\hand2xml\HandParserInterface\obj\Debug\HandParserInterface.dll
+C:\hoki\hand2xml\HandParserInterface\obj\Debug\HandParserInterface.pdb

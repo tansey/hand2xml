@@ -1,0 +1,13 @@
+C:\hoki\hand2xml\hand2xml\obj\Release\hand2xml.exe
+C:\hoki\hand2xml\hand2xml\obj\Release\hand2xml.pdb
+C:\hoki\hand2xml\hand2xml\bin\Release\hand2xml.exe
+C:\hoki\hand2xml\hand2xml\bin\Release\hand2xml.pdb
+C:\hoki\hand2xml\hand2xml\bin\Release\HandHistory.dll
+C:\hoki\hand2xml\hand2xml\bin\Release\HandParserInterface.dll
+C:\hoki\hand2xml\hand2xml\bin\Release\HandParsers.dll
+C:\hoki\hand2xml\hand2xml\bin\Release\PluginArchitecture.dll
+C:\hoki\hand2xml\hand2xml\bin\Release\PluginInterface.dll
+C:\hoki\hand2xml\hand2xml\bin\Release\HandParserInterface.pdb
+C:\hoki\hand2xml\hand2xml\bin\Release\HandHistory.pdb
+C:\hoki\hand2xml\hand2xml\bin\Release\HandParsers.pdb
+C:\hoki\hand2xml\hand2xml\obj\Release\ResolveAssemblyReference.cache

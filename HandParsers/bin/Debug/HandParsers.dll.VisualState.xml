@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1019]C:\hoki\hand2xml\HandParsers\bin\Debug\HandParsers.dll</TopNode>
+  <SelectedNode>[0-1019]C:\hoki\hand2xml\HandParsers\bin\Debug\HandParsers.dll</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1019]C:\hoki\hand2xml\HandParsers\bin\Debug\HandParsers.dll" Expanded="true">
+      <Nodes>
+        <Node UniqueName="[0-1020]HandParsers" Expanded="true">
+          <Nodes>
+            <Node UniqueName="[0-1000]HandParsers.FullTiltParserTest" Expanded="true">
+              <Nodes>
+                <Node UniqueName="[0-1006]HandParsers.FullTiltParserTest.BettingTypeAndPokerVariant" />
+                <Node UniqueName="[0-1009]HandParsers.FullTiltParserTest.BlindPostings" />
+                <Node UniqueName="[0-1010]HandParsers.FullTiltParserTest.Button" />
+                <Node UniqueName="[0-1014]HandParsers.FullTiltParserTest.Flop" />
+                <Node UniqueName="[0-1005]HandParsers.FullTiltParserTest.GameFormat" />
+                <Node UniqueName="[0-1002]HandParsers.FullTiltParserTest.HandNumber" />
+                <Node UniqueName="[0-1011]HandParsers.FullTiltParserTest.Hero" />
+                <Node UniqueName="[0-1012]HandParsers.FullTiltParserTest.HoleCards" />
+                <Node UniqueName="[0-1008]HandParsers.FullTiltParserTest.LoadPlayers" />
+                <Node UniqueName="[0-1017]HandParsers.FullTiltParserTest.Pots" />
+                <Node UniqueName="[0-1013]HandParsers.FullTiltParserTest.Preflop" />
+                <Node UniqueName="[0-1001]HandParsers.FullTiltParserTest.RegexTest" />
+                <Node UniqueName="[0-1016]HandParsers.FullTiltParserTest.River" />
+                <Node UniqueName="[0-1018]HandParsers.FullTiltParserTest.ShownHands" />
+                <Node UniqueName="[0-1003]HandParsers.FullTiltParserTest.TableName" />
+                <Node UniqueName="[0-1004]HandParsers.FullTiltParserTest.TableStakes" />
+                <Node UniqueName="[0-1007]HandParsers.FullTiltParserTest.TimeStamp" />
+                <Node UniqueName="[0-1015]HandParsers.FullTiltParserTest.Turn" />
+              </Nodes>
+            </Node>
+          </Nodes>
+        </Node>
+      </Nodes>
+    </Node>
+  </Nodes>
+</VisualState>

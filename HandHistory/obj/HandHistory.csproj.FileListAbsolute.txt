@@ -1,0 +1,5 @@
+C:\hoki\hand2xml\HandHistory\bin\Release\HandHistory.dll
+C:\hoki\hand2xml\HandHistory\bin\Release\HandHistory.pdb
+C:\hoki\hand2xml\HandHistory\obj\Release\ResolveAssemblyReference.cache
+C:\hoki\hand2xml\HandHistory\obj\Release\HandHistory.dll
+C:\hoki\hand2xml\HandHistory\obj\Release\HandHistory.pdb

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="hand2xml">
+</Property><Property Name="Solution File" Value="C:\hoki\hand2xml\hand2xml.sln">
+</Property><Property Name="User Options File" Value="C:\hoki\hand2xml\hand2xml.suo">
+</Property><Property Name="Date" Value="Saturday, June 27, 2009">
+</Property><Property Name="Time" Value="13:49 PM">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="hand2xml.sln" Description="File successfully backed up as C:\hoki\hand2xml\Backup\hand2xml.sln">
+</Event><Event ErrorLevel="0" Project="" Source="hand2xml.suo" Description="File successfully backed up as C:\hoki\hand2xml\Backup\hand2xml.suo">
+</Event><Event ErrorLevel="0" Project="hand2xml" Source="hand2xml\hand2xml.csproj" Description="Project file successfully backed up as C:\hoki\hand2xml\Backup\hand2xml\hand2xml.csproj">
+</Event><Event ErrorLevel="0" Project="hand2xml" Source="hand2xml\Program.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\hand2xml\Program.cs">
+</Event><Event ErrorLevel="0" Project="hand2xml" Source="hand2xml\Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\hand2xml\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="hand2xml" Source="hand2xml\hand2xml.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="hand2xml" Source="hand2xml\hand2xml.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\HandParserInterface.csproj" Description="Project file successfully backed up as C:\hoki\hand2xml\Backup\HandParserInterface\HandParserInterface.csproj">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\IHandParser.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParserInterface\IHandParser.cs">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\InvalidHandFormatException.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParserInterface\InvalidHandFormatException.cs">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParserInterface\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\HandParserInterface.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="HandParserInterface" Source="HandParserInterface\HandParserInterface.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\HandParsers.csproj" Description="Project file successfully backed up as C:\hoki\hand2xml\Backup\HandParsers\HandParsers.csproj">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\FullTiltParser.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParsers\FullTiltParser.cs">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\FullTiltParserTest.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParsers\FullTiltParserTest.cs">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandParsers\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\HandParsers.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="HandParsers" Source="HandParsers\HandParsers.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\HandHistory.csproj" Description="Project file successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\HandHistory.csproj">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\FlopPokerHandHistory.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\FlopPokerHandHistory.cs">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\HandHistoryUtil.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\HandHistoryUtil.cs">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\Properties\AssemblyInfo.cs" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\FlopPokerHandHistory.xsd" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\FlopPokerHandHistory.xsd">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\FlopPokerHandHistory.xsx" Description="File successfully backed up as C:\hoki\hand2xml\Backup\HandHistory\FlopPokerHandHistory.xsx">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\HandHistory.csproj" Description="Project converted successfully">
+</Event><Event ErrorLevel="3" Project="HandHistory" Source="HandHistory\HandHistory.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="hand2xml.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="hand2xml.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="hand2xml" Source="hand2xml\hand2xml.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="HandParserInterface" Source="HandParserInterface\HandParserInterface.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="HandParsers" Source="HandParsers\HandParsers.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event><Event ErrorLevel="0" Project="HandHistory" Source="HandHistory\HandHistory.csproj" Description="Scan complete: Upgrade not required for project files.">
+</Event></UpgradeLog>
