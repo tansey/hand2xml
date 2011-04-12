@@ -73,7 +73,7 @@ namespace HandParsers
         public PokerHandXML Parse(TextReader file)
         {
             List<PokerHand> hands = new List<PokerHand>();
-            
+
             string line;
             bool inHand = false;
             StringBuilder handText = new StringBuilder();
@@ -89,7 +89,7 @@ namespace HandParsers
                 {
                     Console.WriteLine("Found hand");
                     PokerHand hand = parseHand(lines, handText.ToString());
-                    if(hand != null)
+                    if (hand != null)
                         hands.Add(hand);
                     inHand = false;
                     continue;
@@ -140,7 +140,7 @@ namespace HandParsers
             #endregion
 
             #region Skip partial hands
-            if(lines[0].EndsWith("(partial)"))
+            if (lines[0].EndsWith("(partial)"))
                 return null;
             #endregion
 
@@ -169,7 +169,7 @@ namespace HandParsers
 
             #region Get the table name
             start = end + 2;
-            end = handText.IndexOf('-', start);
+            end = handText.IndexOf(" - ", start) + 1;
             hand.Context.Table = handText.Substring(start, end - start - 1);
             #endregion
 
@@ -179,7 +179,7 @@ namespace HandParsers
 
             #region Get the blinds and game format
             start = end + 2;
-            end = handText.IndexOf('-', start);
+            end = handText.IndexOf(" - ", start) + 1;
             string blindsAndAntes = handText.Substring(start, end - start);
             int blindSeparator = blindsAndAntes.IndexOf('/');
             string smallBlindText = blindsAndAntes.Substring(0, blindSeparator);
@@ -224,13 +224,13 @@ namespace HandParsers
 
             #region Get the betting type and poker variant
             start = end + 2;
-            end = handText.IndexOf('-', start);
+            end = handText.IndexOf(" - ", start) + 1;
             string typeAndVariant = handText.Substring(start, end - start);
 
             int capIndex = typeAndVariant.IndexOf(" Cap ");
             if (capIndex != -1)
             {
-                string capAmountText = handText.Substring(start, capIndex - start);
+                string capAmountText = handText.Substring(start, capIndex);
                 hand.Context.CapAmount = Decimal.Parse(capAmountText.Trim().Replace("$", ""));
                 hand.Context.CapAmountSpecified = true;
                 hand.Context.Capped = true;
@@ -241,16 +241,16 @@ namespace HandParsers
                 hand.Context.Capped = false;
             }
 
-            if(typeAndVariant.Contains("Pot Limit"))
+            if (typeAndVariant.Contains("Pot Limit"))
                 hand.Context.BettingType = BettingType.PotLimit;
-            else if(typeAndVariant.Contains("No Limit"))
+            else if (typeAndVariant.Contains("No Limit"))
                 hand.Context.BettingType = BettingType.NoLimit;
             else
                 hand.Context.BettingType = BettingType.FixedLimit;
 
             if (typeAndVariant.Contains("Hold'em"))
                 hand.Context.PokerVariant = PokerVariant.TexasHoldEm;
-            else if(typeAndVariant.Contains("Omaha Hi"))
+            else if (typeAndVariant.Contains("Omaha Hi"))
                 hand.Context.PokerVariant = PokerVariant.OmahaHi;
             else
                 hand.Context.PokerVariant = PokerVariant.OmahaHiLo;
@@ -307,6 +307,15 @@ namespace HandParsers
             hand.Players = players.ToArray();
             #endregion
 
+            #region Terminate parsing of unsupported poker type
+
+            if ((!typeAndVariant.Contains("Hold'em") && (!typeAndVariant.Contains("Omaha"))))
+            {
+                return hand;
+            }
+
+            #endregion
+
 #if DEBUG
             Console.WriteLine("Blinds and Antes Posted");
 #endif
@@ -315,6 +324,10 @@ namespace HandParsers
             List<Blind> blinds = new List<Blind>();
             for (; !lines[curLine].StartsWith("The button is in seat #"); curLine++)
             {
+                if (lines[curLine].Contains(" has been canceled"))
+                {
+                    return hand;
+                }
 
                 for (Match m = actionExp.Match(lines[curLine]); m.Success; m = m.NextMatch())
                 {
@@ -465,7 +478,7 @@ namespace HandParsers
                 Match m = potsExp.Match(lines[curLine]);
                 if (m.Success)
                 {
-                    
+
                     GroupCollection gc = m.Groups;
 
                     Pot p = new Pot();
@@ -513,7 +526,7 @@ namespace HandParsers
             //get the rake, if any
             if (hand.Context.Format == GameFormat.CashGame)
             {
-                for (; !lines[curLine].StartsWith("Total pot") 
+                for (; !lines[curLine].StartsWith("Total pot")
                     || lines[curLine].Contains(":")
                     || !lines[curLine].Contains("| Rake "); curLine++)
                 {
@@ -588,8 +601,8 @@ namespace HandParsers
                 if (potsExp.Match(lines[curLine]).Success)
                     break;
 
-                Match m =actionExp.Match(lines[curLine]);
-                if ( m.Success )
+                Match m = actionExp.Match(lines[curLine]);
+                if (m.Success)
                 {
                     GroupCollection gc = m.Groups;
 
@@ -603,16 +616,16 @@ namespace HandParsers
                         case "checks": a.Type = ActionType.Check;
                             break;
                         case "calls": a.Type = ActionType.Call;
-                                      a.Amount = Decimal.Parse(gc[7].Value);
-                                      a.AllIn = gc[10].Value.Length == 15;
+                            a.Amount = Decimal.Parse(gc[7].Value);
+                            a.AllIn = gc[10].Value.Length == 15;
                             break;
                         case "bets": a.Type = ActionType.Bet;
-                                     a.Amount = Decimal.Parse(gc[7].Value);
-                                     a.AllIn = gc[10].Value.Length == 15;          
+                            a.Amount = Decimal.Parse(gc[7].Value);
+                            a.AllIn = gc[10].Value.Length == 15;
                             break;
                         case "raises to": a.Type = ActionType.Raise;
-                                          a.Amount = Decimal.Parse(gc[7].Value);
-                                          a.AllIn = gc[10].Value.Length == 15;          
+                            a.Amount = Decimal.Parse(gc[7].Value);
+                            a.AllIn = gc[10].Value.Length == 15;
                             break;
                         default: throw new Exception("Unknown action type: " + lines[curLine]);
                     }
@@ -633,7 +646,7 @@ namespace HandParsers
 
                     actions.Add(a);
                 }
-                
+
             }
             return actions.ToArray();
         }
@@ -658,7 +671,7 @@ namespace HandParsers
 
         public void Initialize()
         {
-            
+
         }
 
         public string Name

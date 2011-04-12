@@ -19,3 +19,6 @@ C:\local_apps\hand2xml\bin\Release\hand2xml.exe.config
 C:\local_apps\hand2xml\bin\Release\hand2xml.exe
 C:\local_apps\hand2xml\bin\Release\hand2xml.pdb
 C:\local_apps\hand2xml\hand2xml\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Emre Kenci\Desktop\hand2xml\bin\Release\hand2xml.exe.config
+C:\Users\Emre Kenci\Desktop\hand2xml\hand2xml\obj\Release\hand2xml.exe
+C:\Users\Emre Kenci\Desktop\hand2xml\hand2xml\obj\Release\hand2xml.pdb
