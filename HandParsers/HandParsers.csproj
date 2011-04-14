@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="FullTiltParser.cs" />
     <Compile Include="FullTiltParserTest.cs" />
+    <Compile Include="PokerStarsParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

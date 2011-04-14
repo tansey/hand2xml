@@ -215,7 +215,10 @@ namespace HandParsers
             else if (blindsAndAntes.Contains("$"))
                 hand.Context.Format = GameFormat.CashGame;
             else
-                hand.Context.Format = GameFormat.MultiTableTournament;
+                if (lines[0].Contains("), Table "))
+                    hand.Context.Format = GameFormat.MultiTableTournament;
+                else
+                    hand.Context.Format = GameFormat.PlayMoney;
             #endregion
 
 #if DEBUG
@@ -373,26 +376,39 @@ namespace HandParsers
 #if DEBUG
             Console.WriteLine("Hole Cards and Hero");
 #endif
-
             #region Get the hole cards and the name of the hero
+            int tempIndex = curLine;
+            bool heroType = true;
             while (!lines[curLine].StartsWith("Dealt to "))
-                curLine++;
-
-            start = "Dealt to ".Length;
-            end = lines[curLine].IndexOf(" [", start);
-            hand.Hero = lines[curLine].Substring(start, end - start);
-
-            start = end + 2;
-            List<Card> holecards = new List<Card>();
-            holecards.Add(new Card(lines[curLine].Substring(start, 2)));
-            holecards.Add(new Card(lines[curLine].Substring(start + 3, 2)));
-            if (hand.Context.PokerVariant != PokerVariant.TexasHoldEm)
             {
-                holecards.Add(new Card(lines[curLine].Substring(start + 6, 2)));
-                holecards.Add(new Card(lines[curLine].Substring(start + 9, 2)));
+                if (lines[curLine].Equals("*** FLOP ***") || lines[curLine].Equals("*** SUMMARY ***"))
+                {
+                    curLine = tempIndex;
+                    heroType = false;
+                    break;
+                }
+                else
+                    curLine++;
             }
-            hand.HoleCards = holecards.ToArray();
-            curLine++;
+
+            if (heroType)
+            {
+                start = "Dealt to ".Length;
+                end = lines[curLine].IndexOf(" [", start);
+                hand.Hero = lines[curLine].Substring(start, end - start);
+
+                start = end + 2;
+                List<Card> holecards = new List<Card>();
+                holecards.Add(new Card(lines[curLine].Substring(start, 2)));
+                holecards.Add(new Card(lines[curLine].Substring(start + 3, 2)));
+                if (hand.Context.PokerVariant != PokerVariant.TexasHoldEm)
+                {
+                    holecards.Add(new Card(lines[curLine].Substring(start + 6, 2)));
+                    holecards.Add(new Card(lines[curLine].Substring(start + 9, 2)));
+                }
+                hand.HoleCards = holecards.ToArray();
+                curLine++;
+            }
             #endregion
 
 #if DEBUG

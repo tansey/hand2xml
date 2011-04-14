@@ -59,7 +59,7 @@ namespace PokerHandHistory {
         private decimal rakeField;
         
         private string heroField;
-        
+
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Blinds")]
         public Blind[] Blinds {
@@ -516,11 +516,16 @@ namespace PokerHandHistory {
         private bool capAmountFieldSpecified;
         
         private PokerVariant pokerVariantField;
+
+        // PokerStars has Euro currency and this property is required for PokerStars parser.
+        private string currency;
         
         public Context() {
             this.onlineField = true;
             this.anteField = ((decimal)(0.00m));
             this.cappedField = false;
+            // The default value is USD.
+            this.currency = "USD";
         }
         
         /// <remarks/>
@@ -545,7 +550,21 @@ namespace PokerHandHistory {
                 this.siteField = value;
             }
         }
-        
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Currency
+        {
+            get
+            {
+                return this.currency;
+            }
+            set
+            {
+                this.currency = value;
+            }
+        }
+
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute(DataType="ID")]
         public string ID {
@@ -705,6 +724,12 @@ namespace PokerHandHistory {
         
         /// <remarks/>
         MultiTableTournament,
+
+        // PokerStars does not have a distinct notation for Sit&Gos and MTTs
+        // This format is to be used as a distinct
+        Tournament,
+
+        PlayMoney,
     }
     
     /// <remarks/>
