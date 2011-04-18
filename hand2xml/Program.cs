@@ -38,7 +38,7 @@ namespace hand2xml
     {
         static void Main(string[] args)
         {
-            args = new string[] { "ps", @"C:\Users\Emre Kenci\Desktop\Extreme Hand Hsitories\starseuro.txt",
+            args = new string[] { "ft", @"C:\Users\Emre Kenci\Desktop\Extreme Hand Hsitories\ftpplayexception.txt",
                 @"C:\Users\Emre Kenci\Desktop\Extreme Hand Hsitories\result.xml" };
 
             if (args.Length != 3)
