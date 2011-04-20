@@ -273,7 +273,7 @@ namespace HandParsers
             int second = Int32.Parse(timeTokens[2]);
 
             start = handText.IndexOf('-', end) + 2;
-            string dateText = lines[0].Substring(start);
+            string dateText = lines[0].Substring(start, 10);
             string[] dateTokens = dateText.Split('/');
             int year = Int32.Parse(dateTokens[0]);
             int month = Int32.Parse(dateTokens[1]);
