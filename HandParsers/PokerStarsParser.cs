@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -6,56 +6,51 @@ using PokerHandHistory;
 using HandParserInterface;
 using System.Text.RegularExpressions;
 
-/*
- * Full Tilt Poker hand history parser.
- *
- * Copyright (C) 2010 Wesley Tansey.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
 namespace HandParsers
 {
-    /// <summary>
-    /// Parses a text hand history from Full Tilt Poker
-    /// </summary>
-    public class FullTiltParser : IHandParser
+    public class PokerStarsParser : IHandParser
     {
-        public const string NAME_EXPRESSION = @"([a-zA-Z0-9\s_\-]*)";
-        public const string CHIPS_EXPRESSION = @"\$?((,?[0-9]?[0-9]?[0-9])+(\.\d\d)?)";
+        // Group 1: Currency (Optional)
+        // Group 2: Mathces the whole and fractional part together if there is a decimal digit
+        // Group 3: Integer part
+        // Group 4: Decimal part
+        public const string CHIPS_EXPRESSION = @"(\$|€)?((,?[0-9]?[0-9]?[0-9])+(\.\d\d)?)";
+
+        public const string NAME_EXPRESSION = @"(.*)";
+
         Regex stacksExp =
-            new Regex(@"Seat\s([0-9]+):\s" + NAME_EXPRESSION + @"\s\(" + CHIPS_EXPRESSION + @"\)",
-            RegexOptions.Compiled);
+        new Regex(@"Seat\s([0-9]+):\s" + NAME_EXPRESSION + @"\s\(" + CHIPS_EXPRESSION + @"\sin chips\)",
+        RegexOptions.Compiled);
 
+        // Group 1: Player name
+        // Group 2: Action type
+        // Group 3-4-5-6: Chips expression
+        // Group 7: Matches " to "(Optional, expected to match only in raise type action)
+        // Group 8-9-10-11: Chips expression 
+        // Group 12: All-in
         Regex actionExp =
-            new Regex(
-        NAME_EXPRESSION + @"\s(posts(\s(the|a)\s(dead\s)?(small|big)\sblind\sof)?|antes|checks|bets|calls|raises\sto|folds)\s?" + CHIPS_EXPRESSION + @"?(,\sand\sis\sall\sin)?",
-            RegexOptions.Compiled);
+        new Regex(NAME_EXPRESSION + @":\s(posts\ssmall\sblind|posts\sbig\sblind|posts\sthe\sante|folds|checks|bets|calls|raises)\s" + CHIPS_EXPRESSION + @"?(\sto\s)?" + CHIPS_EXPRESSION + @"?(\sand\sis\sall-in)?",
+        RegexOptions.Compiled);
 
+        // Group 1-2-3-4: Chips Expression
+        // Group 5: Name expression
         Regex uncalledExp =
-            new Regex(
-        @"Uncalled\sbet\sof\s" + CHIPS_EXPRESSION + @"\sreturned\sto\s" + NAME_EXPRESSION,
-            RegexOptions.Compiled);
+        new Regex(
+        @"Uncalled\sbet\s\(" + CHIPS_EXPRESSION + @"\)\sreturned\sto\s" + NAME_EXPRESSION,
+        RegexOptions.Compiled);
 
+        // Group 1: Name expression
+        // Group 2-3-4-5: Chips expression
+        // Group 6: Either one of: "from pot", "from main pot", "from side pot"
+        // Group 7: Side pot id (Optional)
         Regex potsExp =
-            new Regex(
-         NAME_EXPRESSION + @"\s(wins|ties for)\s(the\s(high\s|low\s)?(main\s|side\s)?pot|(high\s|low\s)?side\spot\s#([0-9]+))\s\(" + CHIPS_EXPRESSION + @"\)",
-            RegexOptions.Compiled);
+        new Regex(
+        NAME_EXPRESSION + @"\scollected\s" + CHIPS_EXPRESSION + @"\s(from\spot|from\smain\spot|from\sside\spot(-\d)?)",
+        RegexOptions.Compiled);
 
         Regex shownHandsExp =
-            new Regex(@"Seat\s([0-9]+):\s" + NAME_EXPRESSION + @"\s(\([a-z\s]+\)\s)?(showed|mucked)\s\[([2-9AKQJT][cdhs])\s([2-9AKQJT][cdhs])(\s([2-9AKQJT][cdhs])\s([2-9AKQJT][cdhs]))?\]",
-            RegexOptions.Compiled);
+        new Regex(@"Seat\s([0-9]+):\s" + NAME_EXPRESSION + @"\s(\([a-z\s]+\)\s)?(showed|mucked)\s\[([2-9AKQJT][cdhs])\s([2-9AKQJT][cdhs])(\s([2-9AKQJT][cdhs])\s([2-9AKQJT][cdhs]))?\]",
+        RegexOptions.Compiled);
 
         #region IHandParser Members
         public PokerHandXML ParseString(string hand)
@@ -66,7 +61,7 @@ namespace HandParsers
 
         public PokerHandXML ParseFile(string filename)
         {
-            TextReader file = new StreamReader(filename);
+            TextReader file = new StreamReader(filename, Encoding.Default);
             return Parse(file);
         }
 
@@ -121,8 +116,7 @@ namespace HandParsers
 
         #endregion
         int printed = 0;
-        //Note that lines is only passed for efficiency, it could be obtained
-        //by just splitting handText
+        //Note that lines is only passed for efficiency, it could be obtained by just splitting handText
         private PokerHand parseHand(List<string> lines, string handText)
         {
             PokerHand hand = new PokerHand();
@@ -131,26 +125,30 @@ namespace HandParsers
             int start;
             int end;
             int curLine;
+            char currencySymbol;
             List<Round> rounds = new List<Round>();
             #endregion
 
-            #region Make sure it's a Full Tilt hand
-            if (!handText.StartsWith("Full Tilt Poker"))
+            // Edited
+            #region Make sure it's a PokerStars hand
+            if (!handText.StartsWith("PokerStars"))
                 throw new InvalidHandFormatException(handText);
             #endregion
 
             #region Skip partial hands
-            if (lines[0].EndsWith("(partial)"))
+            if(lines[0].EndsWith("(partial)"))
                 return null;
             #endregion
 
+            // Edited
             hand.Context.Online = true;
-            hand.Context.Site = "Full Tilt Poker";
+            hand.Context.Site = "PokerStars";
 
-#if DEBUG
-            Console.WriteLine("Hand Number");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Hand Number");
+            #endif
 
+            // Edited
             #region Get the hand number
             start = handText.IndexOf('#') + 1;
             end = handText.IndexOf(':');
@@ -163,78 +161,110 @@ namespace HandParsers
             }
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Table Name");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Table Name");
+            #endif
 
+            // Edited
             #region Get the table name
-            start = end + 2;
-            end = handText.IndexOf(" - ", start) + 1;
-            hand.Context.Table = handText.Substring(start, end - start - 1);
+
+            start = lines[1].IndexOf('\'');
+            end = lines[1].IndexOf('\'', 7);
+
+            hand.Context.Table = (lines[1].Substring(start + 1, end - start - 1));
+
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Blinds");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Blinds");
+            #endif
 
-            #region Get the blinds and game format
-            start = end + 2;
-            end = handText.IndexOf(" - ", start) + 1;
-            string blindsAndAntes = handText.Substring(start, end - start);
-            int blindSeparator = blindsAndAntes.IndexOf('/');
-            string smallBlindText = blindsAndAntes.Substring(0, blindSeparator);
-            if (smallBlindText[0] == '$')
-                smallBlindText = smallBlindText.Substring(1);
-            hand.Context.SmallBlind = Decimal.Parse(smallBlindText.Trim());
+            // Edited
+            #region Get the blinds, antes and currency
+            start = handText.IndexOf('(');
+            end = handText.IndexOf('/');
+            string smallBlind = handText.Substring(start + 1, end - start - 1);
 
-            int bigBlindStart = blindSeparator + 1;
-            int bigBlindEnd = blindsAndAntes.IndexOf(' ', bigBlindStart);
-            string bigBlindText = blindsAndAntes.Substring(bigBlindStart, bigBlindEnd - bigBlindStart);
-            if (bigBlindText[0] == '$')
-                bigBlindText = bigBlindText.Substring(1);
-            hand.Context.BigBlind = Decimal.Parse(bigBlindText.Trim());
+            start = end;
+            end = handText.IndexOf(' ', start);
+            string bigBlind = handText.Substring(start + 1, end - start - 1);
 
-            int anteIndex = blindsAndAntes.IndexOf("Ante");
-            if (anteIndex != -1)
+            if (smallBlind[0].Equals('$') || smallBlind[0].Equals('€'))
             {
-                int anteStart = anteIndex + 5;
-                string anteText = blindsAndAntes.Substring(anteStart);
-                if (anteText[0] == '$')
-                    anteText = anteText.Substring(1);
-                hand.Context.Ante = Decimal.Parse(anteText.Trim());
+                if (smallBlind[0].Equals('$'))
+                {
+                    hand.Context.Currency = "USD";
+                    currencySymbol = '$';
+                }
+                else
+                {
+                    hand.Context.Currency = "EUR";
+                    currencySymbol = '€';
+                }
+                hand.Context.SmallBlind = Decimal.Parse(smallBlind.Substring(1).Trim());
+                hand.Context.BigBlind = Decimal.Parse(bigBlind.Substring(1).Trim());
+            }
+            else
+            {
+                currencySymbol = 'T';
+                hand.Context.SmallBlind = Decimal.Parse(smallBlind.Trim());
+                hand.Context.BigBlind = Decimal.Parse(bigBlind.Substring(0,bigBlind.Length-1).Trim());
+            }
+                
+            // Antes are not written on the first line in PokerStars hand histories
+            // Ante amount will have to be extracted from post blind lines.
+            // Smallest possible post blind line index is 4
+            curLine = 4;
+            while(!lines[curLine].Equals("*** HOLE CARDS ***"))
+            {
+                if (lines[curLine].Contains(" posts the ante "))
+                {
+                    start = lines[curLine].IndexOf("ante");
+                    string anteText = lines[curLine].Substring(start+5);
+
+                    if (anteText[0].Equals(currencySymbol))
+                        anteText = anteText.Substring(1);
+
+                    hand.Context.Ante = Decimal.Parse(anteText.Trim());
+
+                    break;
+                }
+
+                curLine++;
             }
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Game Format");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Game Format");
+            #endif
 
             #region Get the game format
-            if (hand.Context.Table.Contains("Sit & Go"))
-                hand.Context.Format = GameFormat.SitNGo;
-            else if (blindsAndAntes.Contains("$"))
-                hand.Context.Format = GameFormat.CashGame;
-            else
-                if (lines[0].Contains("), Table "))
-                    hand.Context.Format = GameFormat.MultiTableTournament;
+            // Stars does not have different notations for Sit&Go's and MTTs.
+            // All tournament hand histories are of the same format.
+            if (currencySymbol.Equals('T'))
+            {
+                if (lines[0].Contains(": Tournament #"))
+                    hand.Context.Format = GameFormat.Tournament;
                 else
                     hand.Context.Format = GameFormat.PlayMoney;
+            }
+            else
+                hand.Context.Format = GameFormat.CashGame;
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Poker Variant and Betting Type");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Poker Variant and Betting Type");
+            #endif
 
             #region Get the betting type and poker variant
-            start = end + 2;
-            end = handText.IndexOf(" - ", start) + 1;
-            string typeAndVariant = handText.Substring(start, end - start);
 
-            int capIndex = typeAndVariant.IndexOf(" Cap ");
-            if (capIndex != -1)
+            if(hand.Context.Format==GameFormat.CashGame && handText.Contains(" Cap - "))
             {
-                string capAmountText = handText.Substring(start, capIndex);
-                hand.Context.CapAmount = Decimal.Parse(capAmountText.Trim().Replace("$", ""));
+                start = handText.IndexOf(" - ")+3;
+                end = handText.IndexOf(" Cap ");
+
+                string capAmountText = handText.Substring(start, end - start);
+                hand.Context.CapAmount = Decimal.Parse(capAmountText.Substring(1).Trim());
                 hand.Context.CapAmountSpecified = true;
                 hand.Context.Capped = true;
             }
@@ -244,51 +274,67 @@ namespace HandParsers
                 hand.Context.Capped = false;
             }
 
-            if (typeAndVariant.Contains("Pot Limit"))
+            string typeAndVariant;
+
+            if (hand.Context.Format == GameFormat.CashGame)
+            {
+                start = handText.IndexOf(":  ") + 3;
+                end = handText.IndexOf(" (", start);
+                typeAndVariant = handText.Substring(start, end - start);
+            }
+            else
+            {
+                start = handText.IndexOf(hand.Context.Currency) + 4;
+                end = handText.IndexOf(" - ", start);
+                typeAndVariant = handText.Substring(start, end - start);
+            }
+
+            if(typeAndVariant.Contains("Pot Limit"))
                 hand.Context.BettingType = BettingType.PotLimit;
-            else if (typeAndVariant.Contains("No Limit"))
+            else if(typeAndVariant.Contains("No Limit"))
                 hand.Context.BettingType = BettingType.NoLimit;
             else
                 hand.Context.BettingType = BettingType.FixedLimit;
 
             if (typeAndVariant.Contains("Hold'em"))
                 hand.Context.PokerVariant = PokerVariant.TexasHoldEm;
-            else if (typeAndVariant.Contains("Omaha Hi"))
+            else if(typeAndVariant.Contains("Omaha Hi"))
                 hand.Context.PokerVariant = PokerVariant.OmahaHi;
             else
                 hand.Context.PokerVariant = PokerVariant.OmahaHiLo;
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Time Stamp");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Time Stamp");
+            #endif
 
             #region Get the date and time
-            start = end + 2;
-            end = handText.IndexOf(' ', start);
-            string timeText = handText.Substring(start, end - start);
-            string[] timeTokens = timeText.Split(':');
-            int hour = Int32.Parse(timeTokens[0]);
-            int minute = Int32.Parse(timeTokens[1]);
-            int second = Int32.Parse(timeTokens[2]);
-
-            start = handText.IndexOf('-', end) + 2;
-            string dateText = lines[0].Substring(start, 10);
+            start = lines[0].LastIndexOf(" - ") + 3;
+            end = lines[0].IndexOf(' ', start);
+            string dateText = lines[0].Substring(start, end-start);
             string[] dateTokens = dateText.Split('/');
             int year = Int32.Parse(dateTokens[0]);
             int month = Int32.Parse(dateTokens[1]);
             int day = Int32.Parse(dateTokens[2]);
 
+            start = end;
+            end = lines[0].IndexOf(' ', start + 1);
+            string timeText = lines[0].Substring(start, end-start);
+            string[] timeTokens = timeText.Split(':');
+            int hour = Int32.Parse(timeTokens[0]);
+            int minute = Int32.Parse(timeTokens[1]);
+            int second = Int32.Parse(timeTokens[2]);
+
             hand.Context.TimeStamp = new DateTime(year, month, day, hour, minute, second);
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Players");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Players");
+            #endif
 
             #region Create the players
             List<Player> players = new List<Player>();
-            curLine = 1;
+            curLine = 2;
             for (Match m = stacksExp.Match(lines[curLine]); m.Success; m = stacksExp.Match(lines[curLine]))
             {
                 if (m.Success)
@@ -299,7 +345,7 @@ namespace HandParsers
                     Player p = new Player();
                     p.Seat = Int32.Parse(gc[1].Value);
                     p.Name = gc[2].Value;
-                    p.Stack = Decimal.Parse(gc[3].Value);
+                    p.Stack = Decimal.Parse(gc[4].Value);
 
                     players.Add(p);
 
@@ -310,6 +356,10 @@ namespace HandParsers
             hand.Players = players.ToArray();
             #endregion
 
+            #if DEBUG
+                        Console.WriteLine("Blinds and Antes Posted");
+            #endif
+
             #region Terminate parsing of unsupported poker type
 
             if ((!typeAndVariant.Contains("Hold'em") && (!typeAndVariant.Contains("Omaha"))))
@@ -319,19 +369,10 @@ namespace HandParsers
 
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Blinds and Antes Posted");
-#endif
-
             #region Get the blinds and antes posted
             List<Blind> blinds = new List<Blind>();
-            for (; !lines[curLine].StartsWith("The button is in seat #"); curLine++)
+            for (; !lines[curLine].StartsWith("*** HOLE CARDS ***"); curLine++)
             {
-                if (lines[curLine].Contains(" has been canceled"))
-                {
-                    return hand;
-                }
-
                 for (Match m = actionExp.Match(lines[curLine]); m.Success; m = m.NextMatch())
                 {
                     GroupCollection gc = m.Groups;
@@ -339,14 +380,14 @@ namespace HandParsers
                     Blind blind = new Blind();
                     blind.Player = gc[1].Value;
 
-                    if (gc[2].Value == "antes")
+                    String a = gc[2].Value + "" + gc[3].Value + "" + gc[4].Value + "" + gc[5].Value + "" + gc[6].Value + "" + gc[7].Value + "" + gc[8].Value + "" + gc[9].Value + "" + gc[10].Value + "" + gc[11].Value + "" + gc[12].Value;
+
+                    if (gc[2].Value.Contains("ante"))
                         blind.Type = BlindType.Ante;
-                    else if (gc[6].Value == "small")
-                        blind.Type = gc[5].Value.Trim() == "dead" ? BlindType.DeadBlind : BlindType.SmallBlind;
-                    else if (gc[6].Value == "big")
-                        blind.Type = gc[5].Value.Trim() == "dead" ? BlindType.DeadBlind : BlindType.BigBlind;
-                    else if (gc[2].Value == "posts")
-                        blind.Type = BlindType.LateBlind;
+                    else if (gc[2].Value.Contains("small"))
+                        blind.Type = BlindType.SmallBlind;
+                    else if (gc[2].Value.Contains("big"))
+                        blind.Type = BlindType.BigBlind;
                     else
                         throw new Exception("Unknown blind type: " + lines[curLine]);
                     if (lines[curLine].Contains("dead"))
@@ -355,27 +396,28 @@ namespace HandParsers
                             Console.WriteLine("{0}: \"{1}\"", i, gc[i].Value);
                         Console.WriteLine("Found as {0}", blind.Type.ToString());
                     }
-                    blind.Amount = Decimal.Parse(gc[7].Value);
-                    blind.AllIn = gc[9].Value.Length == 15;
+                    blind.Amount = Decimal.Parse(gc[4].Value);
+                    blind.AllIn = !gc[12].Value.Equals("");
                     blinds.Add(blind);
                 }
             }
             hand.Blinds = blinds.ToArray();
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Button");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Button");
+            #endif
 
             #region Get the button
-            string buttonText = lines[curLine].Substring(lines[curLine].IndexOf('#') + 1);
+            string buttonText = lines[1].Substring(lines[1].IndexOf('#') + 1,1);
             hand.Context.Button = Int32.Parse(buttonText);
             curLine++;
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Hole Cards and Hero");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Hole Cards and Hero");
+            #endif
+
             #region Get the hole cards and the name of the hero
             int tempIndex = curLine;
             bool heroType = true;
@@ -386,12 +428,12 @@ namespace HandParsers
                     curLine = tempIndex;
                     heroType = false;
                     break;
-                }
+                }  
                 else
                     curLine++;
             }
 
-            if (heroType)
+            if(heroType)
             {
                 start = "Dealt to ".Length;
                 end = lines[curLine].IndexOf(" [", start);
@@ -411,17 +453,19 @@ namespace HandParsers
             }
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Preflop Actions");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Preflop Actions");
+            #endif
+
             #region Preflop Actions
             rounds.Add(new Round());
             rounds[0].Actions = getRoundActions(lines, ref curLine);
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Flop Actions");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Flop Actions");
+            #endif
+
             #region Flop Actions and Community Cards
             if (lines[curLine].StartsWith("*** FLOP ***"))
             {
@@ -440,9 +484,10 @@ namespace HandParsers
             }
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Turn Actions");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Turn Actions");
+            #endif
+
             #region Turn Actions and Community Card
             if (lines[curLine].StartsWith("*** TURN ***"))
             {
@@ -459,9 +504,10 @@ namespace HandParsers
             }
             #endregion
 
-#if DEBUG
-            Console.WriteLine("River Actions");
-#endif
+            #if DEBUG
+                        Console.WriteLine("River Actions");
+            #endif
+
             #region River Actions and Community Card
             if (lines[curLine].StartsWith("*** RIVER ***"))
             {
@@ -482,9 +528,9 @@ namespace HandParsers
             hand.Rounds = rounds.ToArray();
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Results");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Results");
+            #endif
 
             #region Get pots won
             List<HandResult> results = new List<HandResult>();
@@ -494,14 +540,13 @@ namespace HandParsers
                 Match m = potsExp.Match(lines[curLine]);
                 if (m.Success)
                 {
-
                     GroupCollection gc = m.Groups;
 
                     Pot p = new Pot();
-                    p.Amount = Decimal.Parse(gc[8].Value);
+                    p.Amount = Decimal.Parse(gc[3].Value);
 
                     if (gc[7].Value.Length > 0)
-                        p.Number = Int32.Parse(gc[7].Value);
+                        p.Number = Int32.Parse(gc[7].Value.Substring(1));
                     else if ((gc[5].Value.Length == 0 && gc[3].Value == "the pot")
                         || gc[5].Value == "main ")
                         p.Number = 0;
@@ -542,21 +587,21 @@ namespace HandParsers
             //get the rake, if any
             if (hand.Context.Format == GameFormat.CashGame)
             {
-                for (; !lines[curLine].StartsWith("Total pot")
+                for (; !lines[curLine].StartsWith("Total pot") 
                     || lines[curLine].Contains(":")
                     || !lines[curLine].Contains("| Rake "); curLine++)
                 {
                 }
                 int rakeStart = lines[curLine].LastIndexOf("| Rake ") + "| Rake ".Length;
-                string rakeText = lines[curLine].Substring(rakeStart).Replace("$", "");
-                hand.Rake = Decimal.Parse(rakeText);
+                string rakeText = lines[curLine].Substring(rakeStart).Replace(currencySymbol+"", "");
+                hand.Rake = Decimal.Parse(rakeText.Trim());
             }
 
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Shown Hands");
-#endif
+            #if DEBUG
+                        Console.WriteLine("Shown Hands");
+            #endif
 
             #region Get the shown down hands
             for (; curLine < lines.Count; curLine++)
@@ -600,15 +645,15 @@ namespace HandParsers
             hand.Results = results.ToArray();
             #endregion
 
-#if DEBUG
-            Console.WriteLine("Done");
-#endif
-
+            #if DEBUG
+                        Console.WriteLine("Done");
+            #endif
 
             return hand;
         }
 
         #region Helper methods
+
         private Action[] getRoundActions(List<string> lines, ref int curLine)
         {
             List<Action> actions = new List<Action>();
@@ -632,16 +677,16 @@ namespace HandParsers
                         case "checks": a.Type = ActionType.Check;
                             break;
                         case "calls": a.Type = ActionType.Call;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                            a.Amount = Decimal.Parse(gc[4].Value);
+                            a.AllIn = gc[12].Value.Contains("all-in");
                             break;
                         case "bets": a.Type = ActionType.Bet;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                            a.Amount = Decimal.Parse(gc[4].Value);
+                            a.AllIn = gc[12].Value.Contains("all-in");
                             break;
-                        case "raises to": a.Type = ActionType.Raise;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                        case "raises": a.Type = ActionType.Raise;
+                            a.Amount = Decimal.Parse(gc[9].Value);
+                            a.AllIn = gc[12].Value.Contains("all-in");
                             break;
                         default: throw new Exception("Unknown action type: " + lines[curLine]);
                     }
@@ -656,8 +701,8 @@ namespace HandParsers
                     GroupCollection gc = m.Groups;
 
                     Action a = new Action();
-                    a.Player = gc[4].Value;
-                    a.Amount = Decimal.Parse(gc[1].Value);
+                    a.Player = gc[5].Value;
+                    a.Amount = Decimal.Parse(gc[2].Value);
                     a.Type = ActionType.Returned;
 
                     actions.Add(a);
@@ -673,12 +718,12 @@ namespace HandParsers
 
         public string Author
         {
-            get { return "Wesley Tansey"; }
+            get { return "Emre Kenci"; }
         }
 
         public string Description
         {
-            get { return "Parses a Full Tilt Poker hand history file."; }
+            get { return "Parses a PokerStars hand history file."; }
         }
 
         public void Dispose()
@@ -692,7 +737,7 @@ namespace HandParsers
 
         public string Name
         {
-            get { return "Full Tilt Poker"; }
+            get { return "PokerStars Parser"; }
         }
 
         public string Version
@@ -706,7 +751,7 @@ namespace HandParsers
 
         public string Switch
         {
-            get { return "ft"; }
+            get { return "ps"; }
         }
 
         #endregion
