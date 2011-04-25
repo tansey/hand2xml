@@ -14,3 +14,11 @@ C:\local_apps\hand2xml\HandParserInterface\bin\Release\HandHistory.pdb
 C:\local_apps\hand2xml\HandParserInterface\obj\Release\ResolveAssemblyReference.cache
 C:\local_apps\hand2xml\HandParserInterface\obj\Release\HandParserInterface.dll
 C:\local_apps\hand2xml\HandParserInterface\obj\Release\HandParserInterface.pdb
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\bin\Release\HandParserInterface.dll
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\bin\Release\HandParserInterface.pdb
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\bin\Release\HandHistory.dll
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\bin\Release\PluginInterface.dll
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\bin\Release\HandHistory.pdb
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\obj\Release\ResolveAssemblyReference.cache
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\obj\Release\HandParserInterface.dll
+C:\Users\Emre Kenci\Desktop\hand2xml\HandParserInterface\obj\Release\HandParserInterface.pdb
