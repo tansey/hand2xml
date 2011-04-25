@@ -10,24 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandHistory", "HandHistory\HandHistory.csproj", "{78743586-05D0-40D6-9636-AFFC038D55F2}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 5
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs04.codeplex.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = hand2xml\\hand2xml.csproj
-		SccProjectName1 = hand2xml
-		SccLocalPath1 = hand2xml
-		SccProjectUniqueName2 = HandParserInterface\\HandParserInterface.csproj
-		SccProjectName2 = HandParserInterface
-		SccLocalPath2 = HandParserInterface
-		SccProjectUniqueName3 = HandParsers\\HandParsers.csproj
-		SccProjectName3 = HandParsers
-		SccLocalPath3 = HandParsers
-		SccProjectUniqueName4 = HandHistory\\HandHistory.csproj
-		SccProjectName4 = HandHistory
-		SccLocalPath4 = HandHistory
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

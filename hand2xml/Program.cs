@@ -70,42 +70,6 @@ namespace hand2xml
 
                 }
             }
-
-            //int fileNum = 0;
-            //String filename = "ps NLH handhq_";
-            //String dir = @"C:\Users\Emre Kenci\Desktop\PSTEST\";
-
-            //for (int i = 146; i < 203; i++)
-            //{
-            //    args = new string[] { "ps", dir+@"\"+filename+""+i+".txt",
-            //    dir+@"\"+"result"+i+".xml" };
-
-            //    if (args.Length != 3)
-            //    {
-            //        Console.WriteLine("Usage: hand2xml site inFile outFile");
-            //        return;
-            //    }
-
-            //    PluginServices host = PluginServices.Instance;
-            //    host.PluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            //    host.AddPlugin("HandParserInterface.IHandParser");
-            //    host.FindPlugins();
-            //    AvailablePlugins parsers = host.Plugins["HandParserInterface.IHandParser"];
-            //    foreach (AvailablePlugin plugin in parsers)
-            //    {
-            //        IHandParser parser = (IHandParser)plugin.Instance;
-            //        if (parser.Switch == args[0])
-            //        {
-            //            PokerHandXML hands = parser.ParseFile(args[1]);
-            //            TextWriter output = new StreamWriter(args[2]);
-            //            XmlSerializer serializer = new XmlSerializer(typeof(PokerHandXML));
-            //            serializer.Serialize(output, hands);
-            //            output.Flush();
-            //            output.Close();
-            //            break;
-            //        }
-            //    }
-            //}
         }
     }
 }
