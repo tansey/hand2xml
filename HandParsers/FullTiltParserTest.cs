@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using HandHistory;
 using HandParserInterface;
 using System.Text.RegularExpressions;
+using PokerHandHistory;
 
 /*
  * Test class for the Full Tilt Poker hand history parser.
@@ -159,7 +159,7 @@ Seat 6: scaredGuy3 didn't bet (folded)
         [Test]
         public void GameFormat()
         {
-            Assert.AreEqual(HandHistory.GameFormat.CashGame, NoLimitHand1.Context.Format);
+            Assert.AreEqual(PokerHandHistory.GameFormat.CashGame, NoLimitHand1.Context.Format);
         }
 
         [Test]

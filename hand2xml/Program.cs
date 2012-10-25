@@ -38,9 +38,6 @@ namespace hand2xml
     {
         static void Main(string[] args)
         {
-            args = new string[] { "ft", @"<inputhhfile>",
-                @"<outputxmlfile>" };
-
             if (args.Length != 3)
             {
                 Console.WriteLine("Usage: hand2xml site inFile outFile");

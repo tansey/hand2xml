@@ -3,3 +3,8 @@ C:\hoki\hand2xml\HandHistory\bin\Debug\HandHistory.pdb
 C:\hoki\hand2xml\HandHistory\obj\Debug\ResolveAssemblyReference.cache
 C:\hoki\hand2xml\HandHistory\obj\Debug\HandHistory.dll
 C:\hoki\hand2xml\HandHistory\obj\Debug\HandHistory.pdb
+c:\local_apps\hand2xml\HandHistory\bin\Debug\HandHistory.dll
+c:\local_apps\hand2xml\HandHistory\bin\Debug\HandHistory.pdb
+c:\local_apps\hand2xml\HandHistory\obj\Debug\ResolveAssemblyReference.cache
+c:\local_apps\hand2xml\HandHistory\obj\Debug\HandHistory.dll
+c:\local_apps\hand2xml\HandHistory\obj\Debug\HandHistory.pdb

@@ -10,3 +10,14 @@ C:\hoki\hand2xml\HandParsers\bin\Debug\nunit.framework.xml
 C:\hoki\hand2xml\HandParsers\obj\Debug\ResolveAssemblyReference.cache
 C:\hoki\hand2xml\HandParsers\obj\Debug\HandParsers.dll
 C:\hoki\hand2xml\HandParsers\obj\Debug\HandParsers.pdb
+c:\local_apps\hand2xml\HandParsers\obj\Debug\ResolveAssemblyReference.cache
+c:\local_apps\hand2xml\HandParsers\obj\Debug\HandParsers.dll
+c:\local_apps\hand2xml\HandParsers\obj\Debug\HandParsers.pdb
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandParsers.dll
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandParsers.pdb
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandHistory.dll
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandParserInterface.dll
+c:\local_apps\hand2xml\HandParsers\bin\Debug\PluginInterface.dll
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandHistory.pdb
+c:\local_apps\hand2xml\HandParsers\bin\Debug\HandParserInterface.pdb
+c:\local_apps\hand2xml\HandParsers\bin\Debug\nunit.framework.xml

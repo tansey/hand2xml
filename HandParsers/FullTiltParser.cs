@@ -5,6 +5,7 @@ using System.IO;
 using PokerHandHistory;
 using HandParserInterface;
 using System.Text.RegularExpressions;
+using Action = PokerHandHistory.Action;
 
 /*
  * Full Tilt Poker hand history parser.
@@ -697,7 +698,7 @@ namespace HandParsers
 
         public string Version
         {
-            get { return "v0.1"; }
+            get { return "v1.0"; }
         }
 
         #endregion
