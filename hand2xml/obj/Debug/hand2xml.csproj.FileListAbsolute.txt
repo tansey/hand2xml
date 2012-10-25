@@ -28,4 +28,4 @@ c:\local_apps\hand2xml\hand2xml\bin\Debug\HandHistory.pdb
 c:\local_apps\hand2xml\hand2xml\bin\Debug\HandParserInterface.pdb
 c:\local_apps\hand2xml\hand2xml\bin\Debug\HandParsers.pdb
 c:\local_apps\hand2xml\hand2xml\bin\Debug\nunit.framework.xml
-c:\local_apps\hand2xml\hand2xml\obj\Debug\ResolveAssemblyReference.cache
+C:\local_apps\hand2xml\hand2xml\obj\Debug\hand2xml.csprojResolveAssemblyReference.cache

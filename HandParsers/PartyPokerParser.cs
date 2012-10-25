@@ -17,6 +17,9 @@ namespace HandParsers
         public const string CARD_EXPRESSION = @"[2-9AKQJT][cdhs]";
         public const string HAND_START_TEXT = @"***** Hand History for Game";
 
+        // Group 1: Seat number of the button
+        Regex buttonExp = new Regex(@"Seat ([0-9]) is the button", RegexOptions.Compiled);
+
         // Group 1: Seat number
         // Group 2: Name
         // Group 3: Chips
@@ -26,9 +29,9 @@ namespace HandParsers
 
         // Group 1: Player name
         // Group 2: Action type
-        // Group 3-4: Chips expression
+        // Group 3: Chips expression
         Regex actionExp =
-        new Regex(NAME_EXPRESSION + @"\s(posts\ssmall\sblind|posts\sbig\sblind|posts\sthe\sante|is\sall\-In|folds|checks|bets|calls|raises)\s(\[" + CHIPS_EXPRESSION + @"\])?",
+        new Regex(NAME_EXPRESSION + @"\s(posts\ssmall\sblind|posts\sbig\sblind|posts\sbig\sblind\s\+\sdead|posts\sthe\sante|is\sall\-In|folds|checks|bets|calls|raises)(\s\[" + CHIPS_EXPRESSION + @"\])?\.",
         RegexOptions.Compiled);
 
         // Group 1: Name expression
@@ -37,11 +40,14 @@ namespace HandParsers
         // Group 7: Side pot id (Optional)
         Regex potsExp =
             new Regex(
-         NAME_EXPRESSION + @"\swins\s" + CHIPS_EXPRESSION + @"(\sfrom\s*(the\smain\spot|side\spot\s#([0-9])))?",
+         NAME_EXPRESSION + @"\swins\s" + CHIPS_EXPRESSION + @"(\sfrom\s+(the\smain\spot|side\spot\s#([0-9])))?",
             RegexOptions.Compiled);
 
+        // Group 1: Name expression
+        // Group 2: shown or mucked
+        // Group 3-6: Hole cards
         Regex shownHandsExp =
-            new Regex(NAME_EXPRESSION + string.Format(@"\sshows\s\[\s({0}),\s({0})(,\s({0}),\s({0}))?\s\]", CARD_EXPRESSION),
+            new Regex(NAME_EXPRESSION + string.Format(@"\s(shows|doesn't\sshow|does\snot\sshow\scards)(\s\[\s({0}),\s({0})(,\s({0}),\s({0}))?\s\])?", CARD_EXPRESSION),
             RegexOptions.Compiled);
 
         // Group 1: Hand number
@@ -63,6 +69,9 @@ namespace HandParsers
         const string DAY_OF_WEEK = "Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday";
         const string MONTH = "January|February|March|April|May|June|July|August|September|October|November|December";
         Regex stakesAndDateExp = new Regex(string.Format(@"^\${0}/\${0}\s[a-zA-z\s']+\-\s({1}),\s({2})\s([0-9]+),\s([0-9][0-9]):([0-9][0-9]):([0-9][0-9])\s([A-Z]+)\s([0-9][0-9][0-9][0-9])", CHIPS_EXPRESSION, DAY_OF_WEEK, MONTH), RegexOptions.Compiled);
+
+
+        Regex holeCardsExp = new Regex(string.Format(@"Dealt\sto\s{0}\s\[\s\s({1})\s({1})\s\]", NAME_EXPRESSION, CARD_EXPRESSION), RegexOptions.Compiled);
 
         public PokerHandXML ParseString(string hand)
         {
@@ -89,6 +98,10 @@ namespace HandParsers
             {
                 //skip blank lines
                 if (!inHand && line.Length == 0)
+                    continue;
+
+                // filter pp notifications
+                if (line.StartsWith(">"))
                     continue;
 
                 if (inHand && (line.Length == 0 || line == @"Game #<do not remove this line!> starts."))
@@ -134,7 +147,6 @@ namespace HandParsers
 
             #region setup variables
             int start;
-            int end = 0;
             int curLine;
             List<Round> rounds = new List<Round>();
             #endregion
@@ -143,11 +155,6 @@ namespace HandParsers
             if (!handText.StartsWith(HAND_START_TEXT))
                 throw new InvalidHandFormatException(handText);
             #endregion
-
-            //#region Skip partial hands
-            //if (lines[0].EndsWith("(partial)"))
-            //    return null;
-            //#endregion
 
             hand.Context.Online = true;
             hand.Context.Site = Name;
@@ -159,7 +166,7 @@ namespace HandParsers
             #region Get the hand number
             hand.Context.ID = gameNumExp.Match(handText).Groups[1].Value;
             //Console.WriteLine("ID: {0}", hand.Context.ID);
-            if (printed < 2)
+            if (printed < 20000)
             {
                 Console.WriteLine("Hand Text: {0}", handText);
                 Console.WriteLine("Hand Number: {0}", hand.Context.ID);
@@ -233,12 +240,11 @@ namespace HandParsers
 
             #region Create the players
             List<Player> players = new List<Player>();
-            curLine = 1;
-            for (Match m = stacksExp.Match(lines[curLine]); m.Success; m = stacksExp.Match(lines[curLine]))
+            curLine = 5;
+            for (Match m = stacksExp.Match(lines[curLine]); m.Success; m = stacksExp.Match(lines[++curLine]))
             {
                 if (m.Success)
                 {
-
                     GroupCollection gc = m.Groups;
 
                     Player p = new Player();
@@ -247,179 +253,168 @@ namespace HandParsers
                     p.Stack = Decimal.Parse(gc[3].Value);
 
                     players.Add(p);
-
-                    curLine++;
                 }
             }
 
             hand.Players = players.ToArray();
             #endregion
 
-            #region Terminate parsing of unsupported poker type
-
-            //if ((!typeAndVariant.Contains("Hold'em") && (!typeAndVariant.Contains("Omaha"))))
-            //{
-            //    return hand;
-            //}
-
-            #endregion
-
 #if DEBUG
+            foreach (var player in hand.Players)
+                Console.WriteLine("Seat: {0} Name: {1} Chips: {2}", player.Seat, player.Name, player.Stack);
             Console.WriteLine("Blinds and Antes Posted");
 #endif
 
             #region Get the blinds and antes posted
             List<Blind> blinds = new List<Blind>();
-            for (; !lines[curLine].StartsWith("The button is in seat #"); curLine++)
+            for (; lines[curLine] != "** Dealing down cards **"; curLine++)
             {
-                if (lines[curLine].Contains(" has been canceled"))
-                {
-                    return hand;
-                }
+                Match m = actionExp.Match(lines[curLine]);
+                if (!m.Success)
+                    continue;
+                    //throw new InvalidHandFormatException("Hand " + hand.Context.ID + ". Unknown blind or ante: " + lines[curLine]);
+                
+                GroupCollection gc = m.Groups;
 
-                for (Match m = actionExp.Match(lines[curLine]); m.Success; m = m.NextMatch())
-                {
-                    GroupCollection gc = m.Groups;
+                Blind blind = new Blind();
+                blind.Player = gc[1].Value;
+                if (gc[2].Value == "posts the ante")
+                    blind.Type = BlindType.Ante;
+                else if (gc[2].Value == "posts small blind")
+                    blind.Type = BlindType.SmallBlind;
+                else if (gc[2].Value == "posts big blind")
+                    blind.Type = BlindType.BigBlind;
+                else if (gc[2].Value.StartsWith("posts"))
+                    blind.Type = BlindType.LateBlind;
+                else
+                    throw new Exception("Unknown blind type: " + lines[curLine]);
+                //TODO: Handle dead and late blinds appropriately
 
-                    Blind blind = new Blind();
-                    blind.Player = gc[1].Value;
+                blind.Amount = Decimal.Parse(gc[4].Value);
 
-                    if (gc[2].Value == "antes")
-                        blind.Type = BlindType.Ante;
-                    else if (gc[6].Value == "small")
-                        blind.Type = gc[5].Value.Trim() == "dead" ? BlindType.DeadBlind : BlindType.SmallBlind;
-                    else if (gc[6].Value == "big")
-                        blind.Type = gc[5].Value.Trim() == "dead" ? BlindType.DeadBlind : BlindType.BigBlind;
-                    else if (gc[2].Value == "posts")
-                        blind.Type = BlindType.LateBlind;
-                    else
-                        throw new Exception("Unknown blind type: " + lines[curLine]);
-                    if (lines[curLine].Contains("dead"))
-                    {
-                        for (int i = 0; i < gc.Count; i++)
-                            Console.WriteLine("{0}: \"{1}\"", i, gc[i].Value);
-                        Console.WriteLine("Found as {0}", blind.Type.ToString());
-                    }
-                    blind.Amount = Decimal.Parse(gc[7].Value);
-                    blind.AllIn = gc[9].Value.Length == 15;
-                    blinds.Add(blind);
-                }
+                // TODO: Handle all-in blind posts
+                //blind.AllIn = gc[9].Value.Length == 15;
+                blind.AllIn = false;
+
+                blinds.Add(blind);
             }
             hand.Blinds = blinds.ToArray();
             #endregion
 
 #if DEBUG
+            foreach (var blind in hand.Blinds)
+                Console.WriteLine("Player: {0} Amount: {1} Type: {2} All-in: {3}", blind.Player, blind.Amount, blind.Type, blind.AllIn);
             Console.WriteLine("Button");
 #endif
 
             #region Get the button
-            string buttonText = lines[curLine].Substring(lines[curLine].IndexOf('#') + 1);
-            hand.Context.Button = Int32.Parse(buttonText);
+            hand.Context.Button = Int32.Parse(buttonExp.Match(handText).Groups[1].Value);
             curLine++;
             #endregion
 
 #if DEBUG
+            Console.WriteLine("Button: {0}", hand.Context.Button);
             Console.WriteLine("Hole Cards and Hero");
 #endif
             #region Get the hole cards and the name of the hero
-            int tempIndex = curLine;
-            bool heroType = true;
-            while (!lines[curLine].StartsWith("Dealt to "))
+            Match hcMatch = holeCardsExp.Match(handText);
+            if (hcMatch.Success)
             {
-                if (lines[curLine].Equals("*** FLOP ***") || lines[curLine].Equals("*** SUMMARY ***"))
-                {
-                    curLine = tempIndex;
-                    heroType = false;
-                    break;
-                }
-                else
-                    curLine++;
-            }
-
-            if (heroType)
-            {
-                start = "Dealt to ".Length;
-                end = lines[curLine].IndexOf(" [", start);
-                hand.Hero = lines[curLine].Substring(start, end - start);
-
-                start = end + 2;
                 List<Card> holecards = new List<Card>();
-                holecards.Add(new Card(lines[curLine].Substring(start, 2)));
-                holecards.Add(new Card(lines[curLine].Substring(start + 3, 2)));
-                if (hand.Context.PokerVariant != PokerVariant.TexasHoldEm)
-                {
-                    holecards.Add(new Card(lines[curLine].Substring(start + 6, 2)));
-                    holecards.Add(new Card(lines[curLine].Substring(start + 9, 2)));
-                }
+                hand.Hero = hcMatch.Groups[1].Value;
+                holecards.Add(new Card(hcMatch.Groups[2].Value));
+                holecards.Add(new Card(hcMatch.Groups[3].Value));
                 hand.HoleCards = holecards.ToArray();
-                curLine++;
+                //TODO: Handle Omaha.
             }
             #endregion
 
 #if DEBUG
+            if (hcMatch.Success)
+                Console.WriteLine("Hero: {0} HoleCard1: {1} HoleCard2: {2}", hand.Hero, hand.HoleCards[0], hand.HoleCards[1]);
             Console.WriteLine("Preflop Actions");
 #endif
             #region Preflop Actions
+            curLine = lines.IndexOf("** Dealing down cards **") + (hand.Hero == null ? 1 : 2);
             rounds.Add(new Round());
-            rounds[0].Actions = getRoundActions(lines, ref curLine);
+            rounds[0].Actions = getRoundActions(hand, rounds, lines, ref curLine);
             #endregion
 
 #if DEBUG
+            if(rounds[0].CommunityCards != null)
+                foreach (var card in rounds[0].CommunityCards)
+                    Console.WriteLine("Preflop Card: {0}", card);
+            foreach (var action in rounds[0].Actions)
+                Console.WriteLine("Preflop Player: {0} Action: {1} Amount: {2} All-In: {3}", action.Player, action.Type, action.Amount, action.AllIn);
             Console.WriteLine("Flop Actions");
 #endif
             #region Flop Actions and Community Cards
-            if (lines[curLine].StartsWith("*** FLOP ***"))
+            if (lines[curLine].StartsWith("** Dealing Flop **"))
             {
                 rounds.Add(new Round());
 
-                start = lines[curLine].IndexOf('[') + 1;
+                start = lines[curLine].IndexOf('[') + 2;
                 Card[] flop = new Card[3];
                 flop[0] = new Card(lines[curLine].Substring(start, 2));
-                flop[1] = new Card(lines[curLine].Substring(start + 3, 2));
-                flop[2] = new Card(lines[curLine].Substring(start + 6, 2));
+                flop[1] = new Card(lines[curLine].Substring(start + 4, 2));
+                flop[2] = new Card(lines[curLine].Substring(start + 8, 2));
                 rounds[1].CommunityCards = flop;
 
                 curLine++;
 
-                rounds[1].Actions = getRoundActions(lines, ref curLine);
+                rounds[1].Actions = getRoundActions(hand, rounds, lines, ref curLine);
             }
             #endregion
 
 #if DEBUG
+            if (rounds.Count > 1)
+            {
+                foreach (var card in rounds[1].CommunityCards)
+                    Console.WriteLine("Flop Card: {0}", card);
+                foreach (var action in rounds[1].Actions)
+                    Console.WriteLine("Flop Player: {0} Action: {1} Amount: {2} All-In: {3}", action.Player, action.Type, action.Amount, action.AllIn);
+            }
             Console.WriteLine("Turn Actions");
 #endif
             #region Turn Actions and Community Card
-            if (lines[curLine].StartsWith("*** TURN ***"))
+            if (lines[curLine].StartsWith("** Dealing Turn **"))
             {
                 rounds.Add(new Round());
 
-                start = lines[curLine].LastIndexOf('[') + 1;
+                start = lines[curLine].LastIndexOf('[') + 2;
                 Card[] turn = new Card[1];
                 turn[0] = new Card(lines[curLine].Substring(start, 2));
                 rounds[2].CommunityCards = turn;
 
                 curLine++;
 
-                rounds[2].Actions = getRoundActions(lines, ref curLine);
+                rounds[2].Actions = getRoundActions(hand, rounds, lines, ref curLine);
             }
             #endregion
 
 #if DEBUG
+            if (rounds.Count > 2)
+            {
+                foreach (var card in rounds[2].CommunityCards)
+                    Console.WriteLine("Turn Card: {0}", card);
+                foreach (var action in rounds[2].Actions)
+                    Console.WriteLine("Turn Player: {0} Action: {1} Amount: {2} All-In: {3}", action.Player, action.Type, action.Amount, action.AllIn);
+            }
             Console.WriteLine("River Actions");
 #endif
             #region River Actions and Community Card
-            if (lines[curLine].StartsWith("*** RIVER ***"))
+            if (lines[curLine].StartsWith("** Dealing River **"))
             {
                 rounds.Add(new Round());
 
-                start = lines[curLine].LastIndexOf('[') + 1;
+                start = lines[curLine].LastIndexOf('[') + 2;
                 Card[] river = new Card[1];
                 river[0] = new Card(lines[curLine].Substring(start, 2));
                 rounds[3].CommunityCards = river;
 
                 curLine++;
 
-                rounds[3].Actions = getRoundActions(lines, ref curLine);
+                rounds[3].Actions = getRoundActions(hand, rounds, lines, ref curLine);
             }
             #endregion
 
@@ -428,30 +423,54 @@ namespace HandParsers
             #endregion
 
 #if DEBUG
-            Console.WriteLine("Results");
+            if (rounds.Count > 3)
+            {
+                foreach (var card in rounds[3].CommunityCards)
+                    Console.WriteLine("River Card: {0}", card);
+                foreach (var action in rounds[3].Actions)
+                    Console.WriteLine("River Player: {0} Action: {1} Amount: {2} All-In: {3}", action.Player, action.Type, action.Amount, action.AllIn);
+            }
+            Console.WriteLine("Shown Hands");
 #endif
-
-            #region Get pots won
             List<HandResult> results = new List<HandResult>();
+
+            #region Get the shown down hands
+            for (Match match = shownHandsExp.Match(handText); match.Success; match = match.NextMatch())
+            {
+                GroupCollection gc = match.Groups;
+
+                HandResult hr = new HandResult(gc[1].Value);
+                if (gc[2].Value != "does not show cards")
+                    hr.HoleCards = new Card[] { new Card(gc[4].Value), new Card(gc[5].Value) };
+
+                results.Add(hr);
+            }
+            #endregion
+
+#if DEBUG
+            foreach (var hr in results)
+                Console.WriteLine("Player: {0} Cards: {1}", hr.Player, hr.HoleCards == null ? "" : hr.HoleCards[0].ToString() + " " + hr.HoleCards[1].ToString());
+#endif
+            
+            #region Get pots won
             List<List<Pot>> pots = new List<List<Pot>>();
-            for (; !lines[curLine].StartsWith("*** SUMMARY"); curLine++)
+            for (int i = 0; i < results.Count; i++)
+                pots.Add(new List<Pot>());
+
+            for (; curLine < lines.Count; curLine++)
             {
                 Match m = potsExp.Match(lines[curLine]);
                 if (m.Success)
                 {
-
                     GroupCollection gc = m.Groups;
 
                     Pot p = new Pot();
-                    p.Amount = Decimal.Parse(gc[8].Value);
+                    p.Amount = Decimal.Parse(gc[2].Value);
 
-                    if (gc[7].Value.Length > 0)
-                        p.Number = Int32.Parse(gc[7].Value);
-                    else if ((gc[5].Value.Length == 0 && gc[3].Value == "the pot")
-                        || gc[5].Value == "main ")
+                    if(gc[6].Value == "" || gc[6].Value == "the main pot")
                         p.Number = 0;
-                    else if (gc[5].Length > 0)
-                        p.Number = 1;
+                    else
+                        p.Number = int.Parse(gc[7].Value);
 
                     HandResult result = null;
                     List<Pot> potList = null;
@@ -465,14 +484,14 @@ namespace HandParsers
                         }
                     }
 
-                    if (result == null)
-                    {
-                        result = new HandResult(gc[1].Value);
-                        potList = new List<Pot>();
+                    //if (result == null)
+                    //{
+                    //    result = new HandResult(gc[1].Value);
+                    //    potList = new List<Pot>();
 
-                        results.Add(result);
-                        pots.Add(potList);
-                    }
+                    //    results.Add(result);
+                    //    pots.Add(potList);
+                    //}
 
                     potList.Add(p);
                 }
@@ -480,72 +499,30 @@ namespace HandParsers
 
             //add the pots to the model
             for (int i = 0; i < results.Count; i++)
-            {
                 results[i].WonPots = pots[i].ToArray();
-            }
+
+            // Set the results
+            hand.Results = results.ToArray();
+            
+#if DEBUG
+            foreach (var result in hand.Results)
+                foreach (var pot in result.WonPots)
+                    Console.WriteLine("Pot: {0} Player: {1} Amount: {2}", pot.Number, result.Player, pot.Amount);
+            Console.WriteLine("Calculating rake");
+#endif
 
             //get the rake, if any
             if (hand.Context.Format == GameFormat.CashGame)
             {
-                for (; !lines[curLine].StartsWith("Total pot")
-                    || lines[curLine].Contains(":")
-                    || !lines[curLine].Contains("| Rake "); curLine++)
-                {
-                }
-                int rakeStart = lines[curLine].LastIndexOf("| Rake ") + "| Rake ".Length;
-                string rakeText = lines[curLine].Substring(rakeStart).Replace("$", "");
-                hand.Rake = Decimal.Parse(rakeText);
+                hand.Rake = hand.Rounds.Sum(r => r.Actions.Sum(act => act.Amount))
+                          + hand.Blinds.Sum(b => b.Amount)
+                          - hand.Results.Sum(r => r.WonPots.Sum(w => w.Amount));
             }
 
             #endregion
 
 #if DEBUG
-            Console.WriteLine("Shown Hands");
-#endif
-
-            #region Get the shown down hands
-            for (; curLine < lines.Count; curLine++)
-            {
-                Match m = shownHandsExp.Match(lines[curLine]);
-                if (m.Success)
-                {
-
-                    GroupCollection gc = m.Groups;
-
-                    List<Card> shownCards = new List<Card>();
-                    shownCards.Add(new Card(gc[5].Value));
-                    shownCards.Add(new Card(gc[6].Value));
-                    if (hand.Context.PokerVariant != PokerVariant.TexasHoldEm)
-                    {
-                        shownCards.Add(new Card(gc[8].Value));
-                        shownCards.Add(new Card(gc[9].Value));
-                    }
-                    string player = gc[2].Value;
-
-                    HandResult hr = null;
-                    foreach (HandResult curResult in results)
-                        if (curResult.Player == player)
-                        {
-                            hr = curResult;
-                            break;
-                        }
-
-                    if (hr == null)
-                    {
-                        hr = new HandResult(player);
-                        results.Add(hr);
-                    }
-
-                    hr.HoleCards = shownCards.ToArray();
-                }
-            }
-            #endregion
-
-            #region Set the results
-            hand.Results = results.ToArray();
-            #endregion
-
-#if DEBUG
+            Console.WriteLine("Rake: {0}", hand.Rake);
             Console.WriteLine("Done");
 #endif
 
@@ -555,10 +532,10 @@ namespace HandParsers
 
 
         #region Helper methods
-        private Action[] getRoundActions(List<string> lines, ref int curLine)
+        private Action[] getRoundActions(PokerHand hand, List<Round> rounds, List<string> lines, ref int curLine)
         {
             List<Action> actions = new List<Action>();
-            for (; !lines[curLine].StartsWith("*** "); curLine++)
+            for (; !lines[curLine].StartsWith("** Dealing"); curLine++)
             {
                 if (potsExp.Match(lines[curLine]).Success)
                     break;
@@ -567,10 +544,13 @@ namespace HandParsers
                 if (m.Success)
                 {
                     GroupCollection gc = m.Groups;
+                    if (hand.Players.FirstOrDefault(p => p.Name == gc[1].Value) == null)
+                        continue;
 
                     Action a = new Action();
                     a.Player = gc[1].Value;
 
+                    //is all-In|folds|checks|bets|calls|raises
                     switch (gc[2].Value)
                     {
                         case "folds": a.Type = ActionType.Fold;
@@ -578,16 +558,39 @@ namespace HandParsers
                         case "checks": a.Type = ActionType.Check;
                             break;
                         case "calls": a.Type = ActionType.Call;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                            a.Amount = Decimal.Parse(gc[4].Value);
                             break;
                         case "bets": a.Type = ActionType.Bet;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                            a.Amount = Decimal.Parse(gc[4].Value);
                             break;
-                        case "raises to": a.Type = ActionType.Raise;
-                            a.Amount = Decimal.Parse(gc[7].Value);
-                            a.AllIn = gc[10].Value.Length == 15;
+                        case "raises": a.Type = ActionType.Raise;
+                            a.Amount = Decimal.Parse(gc[4].Value);
+                            break;
+                        case "is all-In":
+                            {
+                                a.AllIn = true;
+                                a.Amount = hand.Players.FirstOrDefault(p => p.Name == a.Player).Stack
+                                    - rounds.Sum(r => r.Actions == null ? 0 :
+                                                      r.Actions.Sum(act => act.Player == a.Player ? act.Amount : 0))
+                                         - actions.Sum(act => act.Player == a.Player ? act.Amount : 0);
+                                var lastRaise =  actions.LastOrDefault(act => act.Type == ActionType.Raise);
+                                if (lastRaise == null)
+                                {
+                                    if (rounds.Count == 1)
+                                    {
+                                        if (a.Amount <= hand.Blinds.First(b => b.Type == BlindType.BigBlind).Amount)
+                                            a.Type = ActionType.Call;
+                                        else
+                                            a.Type = ActionType.Raise;
+                                    }
+                                    else
+                                        a.Type = ActionType.Bet;
+                                }
+                                else if (lastRaise.Amount < a.Amount)
+                                    a.Type = ActionType.Raise;
+                                else
+                                    a.Type = ActionType.Call;
+                            }
                             break;
                         default: throw new Exception("Unknown action type: " + lines[curLine]);
                     }
@@ -595,22 +598,20 @@ namespace HandParsers
                     actions.Add(a);
                     continue;
                 }
-
-                //m = uncalledExp.Match(lines[curLine]);
-                //if (m.Success)
-                //{
-                //    GroupCollection gc = m.Groups;
-
-                //    Action a = new Action();
-                //    a.Player = gc[4].Value;
-                //    a.Amount = Decimal.Parse(gc[1].Value);
-                //    a.Type = ActionType.Returned;
-
-                //    actions.Add(a);
-                //}
-
+                
+                // TODO: Handle returned money. Note that pp does not make this obvious.
             }
             return actions.ToArray();
+        }
+
+        private bool isIrrelevant(PokerHand hand, string line)
+        {
+            foreach (var player in hand.Players)
+                if (line.StartsWith(player.Name + ":"))
+                    return true;
+                else if (line.StartsWith(player.Name + " "))
+                    return false;
+            return true;
         }
 
         private int monthToInt(string month)
