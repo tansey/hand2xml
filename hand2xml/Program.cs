@@ -7,6 +7,7 @@ using PluginInterface;
 using PokerHandHistory;
 using HandParserInterface;
 using System.IO;
+using System.Linq;
 
 /*
  * Test class for the hand history parser. Every hand parser defines a unique
@@ -49,24 +50,55 @@ namespace hand2xml
             host.AddPlugin("HandParserInterface.IHandParser");
             host.FindPlugins();
             AvailablePlugins parsers = host.Plugins["HandParserInterface.IHandParser"];
+            IHandParser parser = null;
             foreach (AvailablePlugin plugin in parsers)
             {
-                IHandParser parser = (IHandParser)plugin.Instance;
-                if (parser.Switch == args[0])
+                IHandParser curParser = (IHandParser)plugin.Instance;
+                if (curParser.Switch == args[0])
                 {
-                    PokerHandXML hands = parser.ParseFile(args[1]);
-                    TextWriter output = new StreamWriter(args[2]);
-                    XmlSerializer serializer = new XmlSerializer(typeof(PokerHandXML));
-                    serializer.Serialize(output, hands);
-                    output.Flush();
-                    output.Close();
-                    return;
-                }
-                else
-                {
-
+                    parser = curParser;
+                    break;
                 }
             }
+
+            #region Validate parameters
+            if (parser == null)
+            {
+                Console.WriteLine("Unknown parser type: {0}", args[0]);
+                return;
+            }
+            
+            if (!File.Exists(args[1]) && !Directory.Exists(args[1]))
+            {
+                Console.WriteLine("Unknown file or directory: {0}", args[1]);
+                return;
+            }
+            #endregion
+
+            PokerHandXML result;
+            TextWriter output = new StreamWriter(args[2]);
+
+            // get the file attributes for file or directory
+            FileAttributes attr = File.GetAttributes(args[1]);
+
+            //detect whether its a directory or file
+            if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                List<PokerHand> hands = new List<PokerHand>();
+                foreach (string filename in Directory.GetFiles(args[1]))
+                    hands.AddRange(parser.ParseFile(filename).Hands);
+                result = new PokerHandXML() { Hands = hands.ToArray() };
+            }
+            else
+                result = parser.ParseFile(args[1]);
+
+            
+            XmlSerializer serializer = new XmlSerializer(typeof(PokerHandXML));
+            serializer.Serialize(output, result);
+            output.Flush();
+            output.Close();
+
+            
         }
     }
 }

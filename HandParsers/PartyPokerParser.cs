@@ -101,7 +101,7 @@ namespace HandParsers
                     continue;
 
                 // filter pp notifications
-                if (line.StartsWith(">"))
+                if (line.StartsWith(">") || line.StartsWith(@"The Progressive Bad Beat Jackpot has been hit"))
                     continue;
 
                 if (inHand && (line.Length == 0 || line == @"Game #<do not remove this line!> starts."))
@@ -166,15 +166,15 @@ namespace HandParsers
             #region Get the hand number
             hand.Context.ID = gameNumExp.Match(handText).Groups[1].Value;
             //Console.WriteLine("ID: {0}", hand.Context.ID);
-            if (printed < 20000)
+            if (printed < 200)
             {
                 Console.WriteLine("Hand Text: {0}", handText);
-                Console.WriteLine("Hand Number: {0}", hand.Context.ID);
                 printed++;
             }
             #endregion
 
 #if DEBUG
+            Console.WriteLine("Hand Number: {0}", hand.Context.ID);
             Console.WriteLine("Table Name");
 #endif
 
@@ -439,6 +439,9 @@ namespace HandParsers
             {
                 GroupCollection gc = match.Groups;
 
+                if (!hand.Players.Select(p => p.Name).Contains(gc[1].Value))
+                    continue;
+
                 HandResult hr = new HandResult(gc[1].Value);
                 if (gc[2].Value != "does not show cards")
                     hr.HoleCards = new Card[] { new Card(gc[4].Value), new Card(gc[5].Value) };
@@ -463,6 +466,9 @@ namespace HandParsers
                 if (m.Success)
                 {
                     GroupCollection gc = m.Groups;
+
+                    if (!hand.Players.Select(player => player.Name).Contains(gc[1].Value))
+                        continue;
 
                     Pot p = new Pot();
                     p.Amount = Decimal.Parse(gc[2].Value);
