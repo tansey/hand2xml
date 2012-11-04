@@ -307,15 +307,6 @@ namespace HandParsers
             Console.WriteLine("Button");
 #endif
 
-            #region Get the button
-            hand.Context.Button = Int32.Parse(buttonExp.Match(handText).Groups[1].Value);
-            curLine++;
-            #endregion
-
-#if DEBUG
-            Console.WriteLine("Button: {0}", hand.Context.Button);
-            Console.WriteLine("Hole Cards and Hero");
-#endif
             #region Get the hole cards and the name of the hero
             Match hcMatch = holeCardsExp.Match(handText);
             if (hcMatch.Success)
@@ -348,6 +339,36 @@ namespace HandParsers
                 Console.WriteLine("Preflop Player: {0} Action: {1} Amount: {2} All-In: {3}", action.Player, action.Type, action.Amount, action.AllIn);
             Console.WriteLine("Flop Actions");
 #endif
+
+            #region Get the button
+            // Fuck the button statement. Hand histories are buggy with this number.
+            // hand.Context.Button = Int32.Parse(buttonExp.Match(handText).Groups[1].Value);
+            // curLine++;
+
+            // Validate the button -- It is apparently buggy in some hand histories.
+            var blindNames = hand.Blinds.Where(b => b.Type == BlindType.SmallBlind || b.Type == BlindType.BigBlind).Select(b => b.Player);
+            var buttonName = rounds[0].Actions[0].Player;
+            List<string> actedAlready = new List<string>();
+            actedAlready.AddRange(blindNames);
+            actedAlready.Add(buttonName);
+            for (int i = 1; i < rounds[0].Actions.Length; i++)
+            {
+                string actor = rounds[0].Actions[i].Player;
+                if (!actedAlready.Contains(actor))
+                {
+                    buttonName = actor;
+                    actedAlready.Add(actor);
+                }
+            }
+            hand.Context.Button = hand.Players.First(p => p.Name == buttonName).Seat;
+            #endregion
+
+#if DEBUG
+            Console.WriteLine("Button: {0}", hand.Context.Button);
+            Console.WriteLine("Hole Cards and Hero");
+#endif
+
+            
             #region Flop Actions and Community Cards
             if (lines[curLine].StartsWith("** Dealing Flop **"))
             {
@@ -685,5 +706,13 @@ namespace HandParsers
         }
 
         #endregion
+
+        private int IndexOf<T>(IEnumerable<T> list, Func<T, bool> selector)
+        {
+            for (int i = 0; i < list.Count(); i++)
+                if (selector(list.ElementAt(i)))
+                    return i;
+            return -1;
+        }
     }
 }
