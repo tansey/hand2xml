@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PokerHandXML xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Hands>
+    <Blinds Player="jcloub" Type="SmallBlind" Amount="5" />
+    <Blinds Player="MakelGrus" Type="BigBlind" Amount="10" />
+    <HoleCards Rank="Six" Suit="Spades" />
+    <HoleCards Rank="Queen" Suit="Clubs" />
+    <Rounds>
+      <Actions Player="Hustler_Ed" Type="Call" Amount="10" />
+      <Actions Player="Shammybaby" Type="Fold" />
+      <Actions Player="marine0193" Type="Fold" />
+      <Actions Player="TeeJayorTJ5" Type="Fold" />
+      <Actions Player="jcloub" Type="Raise" Amount="15" />
+      <Actions Player="MakelGrus" Type="Call" Amount="10" />
+      <Actions Player="Hustler_Ed" Type="Call" Amount="10" />
+    </Rounds>
+    <Rounds>
+      <CommunityCards Rank="Five" Suit="Diamonds" />
+      <CommunityCards Rank="Seven" Suit="Hearts" />
+      <CommunityCards Rank="Ten" Suit="Diamonds" />
+      <Actions Player="jcloub" Type="Bet" Amount="10" />
+      <Actions Player="MakelGrus" Type="Call" Amount="10" />
+      <Actions Player="Hustler_Ed" Type="Call" Amount="10" />
+    </Rounds>
+    <Rounds>
+      <CommunityCards Rank="Seven" Suit="Diamonds" />
+      <Actions Player="jcloub" Type="Bet" Amount="20" />
+      <Actions Player="MakelGrus" Type="Call" Amount="20" />
+      <Actions Player="Hustler_Ed" Type="Call" Amount="20" />
+    </Rounds>
+    <Rounds>
+      <CommunityCards Rank="Four" Suit="Hearts" />
+      <Actions Player="jcloub" Type="Bet" Amount="20" />
+      <Actions Player="MakelGrus" Type="Fold" />
+      <Actions Player="Hustler_Ed" Type="Fold" />
+    </Rounds>
+    <Context Site="PartyPoker" Currency="USD" ID="1413811115" Table="Table  14795 " TimeStamp="2005-01-09T19:07:56" Format="CashGame" Button="6" BigBlind="10" SmallBlind="5" BettingType="FixedLimit" PokerVariant="TexasHoldEm" />
+    <Results Player="jcloub">
+      <WonPots Amount="168" />
+    </Results>
+    <Players Name="MakelGrus" Stack="498" Seat="3" />
+    <Players Name="TeeJayorTJ5" Stack="484" Seat="10" />
+    <Players Name="Shammybaby" Stack="551" Seat="6" />
+    <Players Name="jcloub" Stack="2044.5" Seat="1" />
+    <Players Name="marine0193" Stack="538" Seat="8" />
+    <Players Name="Hustler_Ed" Stack="470" Seat="5" />
+    <Rake>2.00</Rake>
+    <Hero>TeeJayorTJ5</Hero>
+  </Hands>
+</PokerHandXML>

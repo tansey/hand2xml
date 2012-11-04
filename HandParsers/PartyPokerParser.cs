@@ -13,12 +13,12 @@ namespace HandParsers
     public class PartyPokerParser : IHandParser
     {
         public const string NAME_EXPRESSION = @"([a-zA-Z0-9_\-]*)";
-        public const string CHIPS_EXPRESSION = @"\$?((,?[0-9]?[0-9]?[0-9])+(\.\d\d)?)";
+        public const string CHIPS_EXPRESSION = @"\$?((,?[0-9]?[0-9]?[0-9])+(\.\d\d?)?)";
         public const string CARD_EXPRESSION = @"[2-9AKQJT][cdhs]";
         public const string HAND_START_TEXT = @"***** Hand History for Game";
 
         // Group 1: Seat number of the button
-        Regex buttonExp = new Regex(@"Seat ([0-9]) is the button", RegexOptions.Compiled);
+        Regex buttonExp = new Regex(@"Seat ([0-9]+) is the button", RegexOptions.Compiled);
 
         // Group 1: Seat number
         // Group 2: Name
@@ -151,7 +151,7 @@ namespace HandParsers
             List<Round> rounds = new List<Round>();
             #endregion
 
-            #region Make sure it's a Full Tilt hand
+            #region Make sure it's a Party Poker hand
             if (!handText.StartsWith(HAND_START_TEXT))
                 throw new InvalidHandFormatException(handText);
             #endregion

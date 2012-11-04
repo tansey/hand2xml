@@ -20,4 +20,4 @@ c:\local_apps\hand2xml\HandParsers\bin\Debug\PluginInterface.dll
 c:\local_apps\hand2xml\HandParsers\bin\Debug\HandHistory.pdb
 c:\local_apps\hand2xml\HandParsers\bin\Debug\HandParserInterface.pdb
 c:\local_apps\hand2xml\HandParsers\bin\Debug\nunit.framework.xml
-C:\local_apps\hand2xml\HandParsers\obj\Debug\HandParsers.csprojResolveAssemblyReference.cache
+C:\local_apps\hand2xml\HandParsers\obj\Debug\ResolveAssemblyReference.cache

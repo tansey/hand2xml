@@ -1,0 +1,36 @@
+***** Hand History for Game 1413811115 *****
+$10/$20 Hold'em - Sunday, January 09, 19:07:56 EDT 2005
+Table Table  14795 (6 max) (Real Money)
+Seat 6 is the button
+Total number of players : 6
+Seat 3: MakelGrus ( $498 )
+Seat 10: TeeJayorTJ5 ( $484 )
+Seat 6: Shammybaby ( $551 )
+Seat 1: jcloub ( $2044.5 )
+Seat 8: marine0193 ( $538 )
+Seat 5: Hustler_Ed ( $470 )
+jcloub posts small blind [$5].
+MakelGrus posts big blind [$10].
+** Dealing down cards **
+Dealt to TeeJayorTJ5 [  6s Qc ]
+Hustler_Ed calls [$10].
+Shammybaby folds.
+marine0193 folds.
+TeeJayorTJ5 folds.
+jcloub raises [$15].
+MakelGrus calls [$10].
+Hustler_Ed calls [$10].
+** Dealing Flop ** [ 5d, 7h, Td ]
+jcloub bets [$10].
+MakelGrus calls [$10].
+Hustler_Ed calls [$10].
+** Dealing Turn ** [ 7d ]
+jcloub bets [$20].
+MakelGrus calls [$20].
+Hustler_Ed calls [$20].
+** Dealing River ** [ 4h ]
+jcloub bets [$20].
+MakelGrus folds.
+Hustler_Ed folds.
+jcloub does not show cards.
+jcloub wins $168

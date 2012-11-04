@@ -39,11 +39,28 @@ namespace hand2xml
     {
         static void Main(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length < 3)
             {
-                Console.WriteLine("Usage: hand2xml site inFile outFile");
+                Console.WriteLine("Usage: hand2xml site inFile outFile [-buckets n]");
                 return;
             }
+
+            int buckets = 1;
+            #region Parse optional parameters
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i][0] != '-')
+                    continue;
+                switch (args[i])
+                {
+                    case "-buckets":
+                    case "-b": buckets = int.Parse(args[++i]);
+                        break;
+                    default: Console.WriteLine("Unknown parameter: {0}", args[i]);
+                        return;
+                }
+            }
+            #endregion
 
             PluginServices host = PluginServices.Instance;
             host.PluginDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -73,10 +90,15 @@ namespace hand2xml
                 Console.WriteLine("Unknown file or directory: {0}", args[1]);
                 return;
             }
+
+            if (buckets < 1)
+            {
+                Console.WriteLine("Invalid bucket count. Must have at least one bucket.");
+                return;
+            }
             #endregion
 
             PokerHandXML result;
-            TextWriter output = new StreamWriter(args[2]);
 
             // get the file attributes for file or directory
             FileAttributes attr = File.GetAttributes(args[1]);
@@ -92,13 +114,28 @@ namespace hand2xml
             else
                 result = parser.ParseFile(args[1]);
 
+            string outfile = args[2];
+
+            int handsPerFile = result.Hands.Length / buckets;
+            for (int i = 0; i < buckets; i++)
+            {
+                int start = handsPerFile * i;
+                int end = start + handsPerFile;
+                if (i == (buckets - 1))
+                    end = result.Hands.Length;
+                var subset = new PokerHandXML() { Hands = result.Hands.Where((h,idx) => idx >= start && idx < end).ToArray() };
+                SaveHands(subset, outfile + i + ".xml");
+            }
             
+        }
+
+        private static void SaveHands(PokerHandXML result, string outfile)
+        {
+            TextWriter output = new StreamWriter(outfile);
             XmlSerializer serializer = new XmlSerializer(typeof(PokerHandXML));
             serializer.Serialize(output, result);
             output.Flush();
             output.Close();
-
-            
         }
     }
 }
